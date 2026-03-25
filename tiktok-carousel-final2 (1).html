@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TikTok Carousel Creator</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#07070d;--s1:#0f0f18;--s2:#151520;--s3:#1c1c2b;
+  --b:#252535;--bl:#333348;
+  --red:#fe2c55;--cyan:#25f4ee;--green:#22c55e;
+  --t:#ededf5;--m:#6868a0;--d:#33334a;
+  --r:12px;--rs:7px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--t);display:flex;flex-direction:column;font-size:13px}
+
+/* ── HEADER ── */
+.hdr{height:54px;display:flex;align-items:center;justify-content:space-between;padding:0 18px;border-bottom:1px solid var(--b);background:rgba(7,7,13,.96);backdrop-filter:blur(20px);flex-shrink:0;z-index:50;gap:10px}
+.logo{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.logo-mark{width:30px;height:30px;border-radius:7px;background:linear-gradient(135deg,var(--red),var(--cyan));display:flex;align-items:center;justify-content:center;font-size:15px}
+.logo-txt{font-family:'Bebas Neue';font-size:19px;letter-spacing:3px;background:linear-gradient(90deg,var(--red),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hdr-mid{flex:1;display:flex;align-items:center;gap:8px;max-width:480px}
+.hdr-actions{display:flex;gap:7px;align-items:center;flex-shrink:0}
+.ai-badge{display:inline-flex;align-items:center;gap:4px;font-size:9px;padding:2px 7px;border-radius:10px;background:linear-gradient(90deg,rgba(254,44,85,.18),rgba(37,244,238,.12));border:1px solid rgba(37,244,238,.25);color:var(--cyan);font-weight:700;flex-shrink:0}
+
+/* ── LAYOUT ── */
+.main{display:grid;grid-template-columns:310px 1fr 290px;flex:1;overflow:hidden;min-height:0}
+.col{display:flex;flex-direction:column;overflow:hidden;min-height:0}
+.col-l{border-right:1px solid var(--b)}
+.col-r{border-left:1px solid var(--b)}
+.scroll{overflow-y:auto;flex:1;min-height:0}
+.scroll::-webkit-scrollbar{width:3px}
+.scroll::-webkit-scrollbar-thumb{background:var(--b);border-radius:2px}
+
+/* ── BLOCKS ── */
+.blk{padding:13px 15px;border-bottom:1px solid var(--b)}
+.blk:last-child{border-bottom:none}
+.bttl{font-size:9.5px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--m);margin-bottom:11px;display:flex;align-items:center;gap:6px}
+.bttl::after{content:'';flex:1;height:1px;background:var(--b)}
+
+/* ── API KEY BOX ── */
+.api-box{background:linear-gradient(135deg,rgba(37,244,238,.04),rgba(254,44,85,.03));border:1px solid rgba(37,244,238,.15);border-radius:var(--r);padding:13px;margin-bottom:0}
+.api-row{display:flex;gap:6px;align-items:center;margin-bottom:7px}
+.api-row:last-child{margin-bottom:0}
+.api-label{font-size:10px;font-weight:700;color:var(--m);letter-spacing:.5px;margin-bottom:5px;display:flex;align-items:center;justify-content:space-between}
+.api-label a{color:var(--cyan);opacity:.7;font-weight:400;text-decoration:none;font-size:9.5px}
+.api-label a:hover{opacity:1}
+.key-status{display:flex;align-items:center;gap:5px;margin-top:5px}
+.kdot{width:6px;height:6px;border-radius:50%;background:var(--d);flex-shrink:0;transition:background .3s}
+.kdot.ok{background:var(--green);box-shadow:0 0 6px rgba(34,197,94,.5)}
+.kdot.err{background:var(--red)}
+.ktxt{font-size:10px;color:var(--m);transition:color .3s}
+
+/* ── INPUTS ── */
+.inp{width:100%;background:var(--s2);border:1px solid var(--b);border-radius:var(--rs);color:var(--t);font-family:'DM Sans',sans-serif;font-size:12px;padding:7px 10px;outline:none;transition:border .18s}
+.inp:focus{border-color:var(--cyan)}
+.inp::placeholder{color:var(--d)}
+textarea.inp{resize:none;line-height:1.5}
+select.inp{cursor:pointer}
+select.inp option{background:var(--s2)}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:7px 13px;border-radius:var(--rs);border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:600;font-size:12px;transition:all .16s;white-space:nowrap}
+.btn:active{transform:scale(.97)}
+.btn-red{background:linear-gradient(135deg,var(--red),#ff6b9d);color:#fff}
+.btn-red:hover{filter:brightness(1.1)}
+.btn-cyan{background:linear-gradient(135deg,#0d9f9b,var(--cyan));color:#07070d;font-weight:700}
+.btn-cyan:hover{filter:brightness(1.1)}
+.btn-g{background:var(--s3);border:1px solid var(--b);color:var(--t)}
+.btn-g:hover{border-color:var(--bl)}
+.btn-tt{background:linear-gradient(135deg,#111,#1a1a1a);border:1px solid #333;color:#fff}
+.btn-tt:hover{border-color:#555}
+.btn-sm{padding:5px 9px;font-size:11px}
+.btn-xs{padding:3px 7px;font-size:10px}
+.btn-icon{padding:6px;min-width:30px}
+.btn-full{width:100%}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important}
+
+/* ── LANG CHIPS ── */
+.lrow{display:flex;flex-wrap:wrap;gap:4px}
+.lc{padding:3px 8px;border-radius:20px;font-size:10px;font-weight:600;background:var(--s2);border:1px solid var(--b);color:var(--m);cursor:pointer;transition:all .14s}
+.lc:hover{border-color:var(--bl);color:var(--t)}
+.lc.on{background:rgba(254,44,85,.14);border-color:var(--red);color:var(--t)}
+
+/* ── AVATARS ── */
+.avg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:9px}
+.avc{background:var(--s2);border:2px solid var(--b);border-radius:var(--rs);padding:8px 5px;text-align:center;cursor:pointer;transition:all .16s;position:relative}
+.avc:hover{border-color:var(--bl)}
+.avc.on{border-color:var(--cyan);background:rgba(37,244,238,.05)}
+.avnm{font-size:10px;font-weight:700;color:var(--m);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.avc.on .avnm{color:var(--cyan)}
+.avdel{position:absolute;top:2px;right:2px;width:14px;height:14px;background:rgba(254,44,85,.85);border-radius:50%;display:none;align-items:center;justify-content:center;font-size:8px;color:#fff;cursor:pointer;z-index:2}
+.avc:hover .avdel{display:flex}
+.avadd{border:2px dashed var(--b);border-radius:var(--rs);padding:8px 5px;text-align:center;cursor:pointer;transition:all .16s;color:var(--m);font-size:10px;font-weight:600}
+.avadd:hover{border-color:var(--bl);color:var(--t)}
+
+/* ── SLIDE LIST ── */
+.sll{display:flex;flex-direction:column;gap:4px}
+.slt{display:flex;align-items:center;gap:7px;padding:6px 8px;background:var(--s2);border:1px solid var(--b);border-radius:var(--rs);cursor:pointer;transition:all .14s}
+.slt:hover{border-color:var(--bl)}
+.slt.on{border-color:var(--red);background:rgba(254,44,85,.05)}
+.sltn{width:18px;height:18px;border-radius:3px;background:var(--s3);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:var(--m);flex-shrink:0}
+.slt.on .sltn{background:var(--red);color:#fff}
+.sltt{font-size:11px;color:var(--m);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.slta{display:flex;gap:3px;opacity:0;transition:opacity .14s}
+.slt:hover .slta{opacity:1}
+.sltb{width:18px;height:18px;border-radius:3px;background:var(--s3);border:none;color:var(--m);cursor:pointer;font-size:9px;display:flex;align-items:center;justify-content:center;transition:all .12s}
+.sltb:hover{background:var(--b);color:var(--t)}
+.sltb.del:hover{background:rgba(254,44,85,.3);color:var(--red)}
+
+/* ── CANVAS ── */
+.canvas{display:flex;flex-direction:column;align-items:center;background:var(--s1);padding:16px 14px;gap:12px;overflow-y:auto}
+.canvas::-webkit-scrollbar{width:3px}
+.canvas::-webkit-scrollbar-thumb{background:var(--b)}
+.snav{display:flex;align-items:center;gap:9px;width:300px}
+.sctr{font-family:'Bebas Neue';font-size:17px;letter-spacing:3px;color:var(--m);flex:1;text-align:center}
+
+/* TikTok frame */
+.ttf{width:300px;aspect-ratio:9/16;border-radius:13px;overflow:hidden;position:relative;flex-shrink:0;box-shadow:0 20px 55px rgba(0,0,0,.85),0 0 0 1px var(--b);background:#111}
+.ttbg{position:absolute;inset:0;background-size:cover;background-position:center;transition:background .3s}
+.ttov{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.06) 0%,rgba(0,0,0,.3) 55%,rgba(0,0,0,.68) 100%)}
+.ttct{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:32px 18px;gap:9px}
+.tttext{display:inline-block;font-size:26px;font-weight:800;color:#fff;line-height:1.25;word-break:break-word;padding:4px 7px;border-radius:4px;cursor:pointer;transition:background .14s}
+.tttext:hover{background:rgba(255,255,255,.1)}
+.ttnum{position:absolute;top:12px;right:12px;background:rgba(0,0,0,.55);color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:18px;backdrop-filter:blur(6px)}
+.ttav{position:absolute;top:12px;left:12px;display:flex;align-items:center;gap:4px;background:rgba(0,0,0,.55);padding:4px 8px;border-radius:18px;backdrop-filter:blur(6px)}
+.ttavem{font-size:10px;font-weight:700;color:#07070d;background:#25f4ee;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ttavnm{font-size:10px;font-weight:700;color:#fff}
+.ttload{position:absolute;inset:0;background:rgba(7,7,13,.88);display:none;flex-direction:column;align-items:center;justify-content:center;gap:9px;z-index:10}
+.ttload.on{display:flex}
+.spin{width:36px;height:36px;border:3px solid var(--b);border-top-color:var(--cyan);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spintxt{font-size:11px;color:var(--m);font-weight:500;text-align:center;max-width:160px;line-height:1.4}
+.dots{display:flex;gap:4px;flex-wrap:wrap;justify-content:center;max-width:300px}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--s3);border:1px solid var(--b);cursor:pointer;transition:all .18s}
+.dot.on{background:var(--red);border-color:var(--red);width:18px;border-radius:3px}
+.txtarea{width:300px;display:flex;flex-direction:column;gap:6px}
+.txttl{font-size:9.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--m)}
+.txtbtns{display:flex;gap:6px}
+
+/* ── RIGHT PANEL ── */
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:9px}
+.fopt{padding:6px 7px;background:var(--s2);border:1px solid var(--b);border-radius:var(--rs);cursor:pointer;transition:all .14s;text-align:center;color:var(--t);font-size:12px}
+.fopt:hover{border-color:var(--bl);background:var(--s3)}
+.fopt.on{border-color:var(--cyan);background:rgba(37,244,238,.07)}
+.szrow{display:flex;align-items:center;gap:7px;margin-bottom:9px}
+.szsl{flex:1;accent-color:var(--cyan);cursor:pointer}
+.szv{font-size:10px;color:var(--m);min-width:28px;text-align:right}
+.crow{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:9px}
+.cdot{width:24px;height:24px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all .16s}
+.cdot:hover{transform:scale(1.14)}
+.cdot.on{border-color:#fff;box-shadow:0 0 0 2px var(--b)}
+.alrow{display:flex;gap:4px;margin-bottom:9px}
+.alb{flex:1;padding:6px;background:var(--s2);border:1px solid var(--b);border-radius:var(--rs);color:var(--m);cursor:pointer;font-size:13px;text-align:center;transition:all .14s}
+.alb:hover{border-color:var(--bl);color:var(--t)}
+.alb.on{border-color:var(--cyan);color:var(--cyan);background:rgba(37,244,238,.07)}
+.fxgrid{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:9px}
+.fxc{padding:3px 8px;border-radius:4px;background:var(--s2);border:1px solid var(--b);font-size:10px;font-weight:700;cursor:pointer;transition:all .14s;color:var(--m)}
+.fxc:hover{border-color:var(--bl);color:var(--t)}
+.fxc.on{border-color:var(--red);color:var(--red);background:rgba(254,44,85,.1)}
+.pgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;margin-bottom:9px}
+.psgrid{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:9px}
+.psb{padding:6px 7px;background:var(--s2);border:1px solid var(--b);border-radius:var(--rs);cursor:pointer;transition:all .14s;text-align:center;font-size:10px;color:var(--m);font-weight:600;line-height:1.4}
+.psb:hover{border-color:var(--bl);color:var(--t)}
+.psb.on{border-color:var(--red);color:var(--t);background:rgba(254,44,85,.1)}
+
+/* ── TT CONNECT ── */
+.ttcon{background:var(--s2);border:1px solid var(--b);border-radius:var(--r);overflow:hidden;margin-bottom:9px}
+.ttconh{padding:10px 13px;display:flex;align-items:center;gap:9px;border-bottom:1px solid var(--b)}
+.ttconlogo{width:28px;height:28px;border-radius:5px;background:linear-gradient(135deg,#111,#1a1a);font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ttcontit{font-weight:700;font-size:12px}
+.ttconsub{font-size:9.5px;color:var(--m);margin-top:1px}
+.ttconbody{padding:11px 13px;display:flex;flex-direction:column;gap:7px}
+.ttstatrow{display:flex;align-items:center;gap:7px;padding:7px 9px;background:var(--s3);border-radius:var(--rs);border:1px solid var(--b)}
+.ttstdot{width:7px;height:7px;border-radius:50%;background:var(--d);flex-shrink:0;transition:background .3s}
+.ttstdot.ok{background:var(--green);box-shadow:0 0 6px rgba(34,197,94,.4)}
+.ttstdot.err{background:var(--red)}
+.ttstxt{font-size:11px;color:var(--m);flex:1}
+.ttcap{font-size:10px;color:var(--m);line-height:1.5;padding:7px 9px;background:rgba(37,244,238,.04);border:1px solid rgba(37,244,238,.1);border-radius:var(--rs)}
+
+/* ── UPLOAD PROGRESS ── */
+.uprog{display:none;flex-direction:column;gap:5px;padding:9px 13px;background:var(--s3);border-radius:var(--rs)}
+.uprog.on{display:flex}
+.utrack{height:3px;background:var(--b);border-radius:2px;overflow:hidden}
+.ufill{height:100%;background:linear-gradient(90deg,var(--red),var(--cyan));border-radius:2px;transition:width .4s;width:0%}
+.usteps{display:flex;flex-direction:column;gap:3px}
+.ustep{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--d);transition:color .2s}
+.ustep.act{color:var(--cyan)}
+.ustep.done{color:var(--green)}
+.usdot{width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0}
+
+/* ── MODAL ── */
+.mbg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:200;align-items:center;justify-content:center;backdrop-filter:blur(10px)}
+.mbg.on{display:flex}
+.mbox{background:var(--s1);border:1px solid var(--b);border-radius:var(--r);padding:20px;width:340px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 55px rgba(0,0,0,.6)}
+/* photo upload zone */
+.photo-drop{border:2px dashed var(--b);border-radius:var(--rs);padding:14px;text-align:center;cursor:pointer;transition:all .18s;color:var(--m);font-size:11px;position:relative;display:block}
+.photo-drop:hover{border-color:var(--cyan);color:var(--t)}
+.photo-drop.has-img{border-color:var(--cyan);border-style:solid}
+.photo-preview{width:100%;max-height:140px;object-fit:cover;border-radius:var(--rs);display:none;margin-top:8px}
+.photo-preview.on{display:block}
+.photo-drop-txt{font-size:11px;color:var(--m)}
+.photo-clear{position:absolute;top:5px;right:5px;background:rgba(254,44,85,.85);border:none;border-radius:50%;width:18px;height:18px;color:#fff;font-size:10px;cursor:pointer;display:none;align-items:center;justify-content:center;z-index:2}
+.photo-drop.has-img .photo-clear{display:flex}
+/* avatar card photo indicator */
+.av-has-photo{position:absolute;bottom:2px;right:2px;width:14px;height:14px;background:var(--cyan);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px}
+.mh{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;margin-bottom:14px;color:var(--cyan)}
+.mrow{margin-bottom:10px}
+.mlbl{font-size:9.5px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--m);margin-bottom:4px;display:block}
+.emjs{display:flex;flex-wrap:wrap;gap:4px}
+.ej{font-size:20px;cursor:pointer;padding:3px;border-radius:4px;border:2px solid transparent;transition:all .12s}
+.ej:hover{background:var(--s2)}
+.ej.on{border-color:var(--cyan);background:var(--s2)}
+.mfoot{display:flex;gap:6px;margin-top:13px}
+
+/* ── STATUS ── */
+.sbar{padding:6px 15px;background:var(--s2);border-top:1px solid var(--b);font-size:10px;color:var(--m);display:flex;align-items:center;gap:6px;flex-shrink:0}
+.sdot{width:5px;height:5px;border-radius:50%;background:var(--d)}
+.sdot.ok{background:var(--cyan)}
+.sdot.err{background:var(--red)}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(14px);background:var(--s2);border:1px solid var(--bl);color:var(--t);padding:8px 16px;border-radius:18px;font-size:12px;font-weight:500;opacity:0;transition:all .25s;z-index:999;box-shadow:0 8px 28px rgba(0,0,0,.5)}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── MISC ── */
+.lbl{font-size:9.5px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--m);margin-bottom:4px;display:block}
+.row{display:flex;gap:6px}
+.div{height:1px;background:var(--b);margin:8px 0}
+.tag{font-size:8.5px;padding:2px 5px;border-radius:9px;background:rgba(37,244,238,.12);color:var(--cyan);font-weight:700;letter-spacing:.5px}
+.scount{display:flex;align-items:center;gap:6px;margin-bottom:9px}
+.scount input[type=range]{flex:1;accent-color:var(--red)}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="logo">
+    <div class="logo-mark"></div>
+    <span class="logo-txt">TikCarousel</span>
+    <span class="ai-badge">AI</span>
+  </div>
+  <div class="hdr-actions">
+    <button class="btn btn-g btn-sm" onclick="addSlide()">+ Slide</button>
+    <button class="btn btn-g btn-sm" onclick="generateAll()">Générer tout</button>
+    <button class="btn btn-tt btn-sm" onclick="pushToDraft()">Brouillon TikTok</button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+<!-- ══ LEFT ══ -->
+<div class="col col-l">
+<div class="scroll">
+
+  <!-- API KEYS -->
+  <div class="blk">
+    <div class="bttl">Clés API</div>
+    <div class="api-box">
+
+      <!-- FAL.AI -->
+      <div style="margin-bottom:11px">
+        <div class="api-label">
+          <span>Clé fal.ai</span>
+          <a href="https://fal.ai/dashboard/keys" target="_blank">Obtenir →</a>
+        </div>
+        <div class="api-row">
+          <input type="password" class="inp" id="falKey" placeholder="Colle ta clé fal.ai ici" oninput="onFalKey()" style="flex:1">
+          <button class="btn btn-g btn-icon btn-sm" onclick="toggleVis('falKey')" title="Voir">···</button>
+        </div>
+        <div class="key-status">
+          <div class="kdot" id="falDot"></div>
+          <span class="ktxt" id="falTxt">Non configurée</span>
+        </div>
+      </div>
+
+      <div class="div"></div>
+
+      <!-- TIKTOK -->
+      <div>
+        <div class="api-label">
+          <span>Token TikTok</span>
+          <a href="https://developers.tiktok.com" target="_blank">Portal →</a>
+        </div>
+        <div class="api-row">
+          <input type="password" class="inp" id="ttKey" placeholder="act.xxxxxxxxxxxxxxxx" oninput="onTtKey()" style="flex:1">
+          <button class="btn btn-g btn-icon btn-sm" onclick="toggleVis('ttKey')" title="Voir">···</button>
+        </div>
+        <div class="key-status">
+          <div class="kdot" id="ttDot"></div>
+          <span class="ktxt" id="ttTxt">Non configuré</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- LANGUE -->
+  <div class="blk">
+    <div class="bttl">Langue</div>
+    <div class="lrow" id="lrow">
+      <div class="lc on" data-l="fr" onclick="setLang(this)">🇫🇷 FR</div>
+      <div class="lc" data-l="en" onclick="setLang(this)">🇬🇧 EN</div>
+      <div class="lc" data-l="es" onclick="setLang(this)">🇪🇸 ES</div>
+      <div class="lc" data-l="pt" onclick="setLang(this)">🇧🇷 PT</div>
+      <div class="lc" data-l="de" onclick="setLang(this)">🇩🇪 DE</div>
+      <div class="lc" data-l="it" onclick="setLang(this)">🇮🇹 IT</div>
+      <div class="lc" data-l="ar" onclick="setLang(this)">🇸🇦 AR</div>
+      <div class="lc" data-l="zh" onclick="setLang(this)">🇨🇳 ZH</div>
+      <div class="lc" data-l="ja" onclick="setLang(this)">🇯🇵 JA</div>
+      <div class="lc" data-l="ko" onclick="setLang(this)">🇰🇷 KO</div>
+      <div class="lc" data-l="ru" onclick="setLang(this)">🇷🇺 RU</div>
+      <div class="lc" data-l="tr" onclick="setLang(this)">🇹🇷 TR</div>
+    </div>
+  </div>
+
+  <!-- AVATARS -->
+  <div class="blk">
+    <div class="bttl">Avatars <span class="tag">MÉMOIRE</span></div>
+    <div class="avg" id="avg"></div>
+    <div class="avadd" onclick="openModal()">
+      <span style="font-size:18px;display:block;margin-bottom:2px">+</span>
+      Nouvel avatar
+    </div>
+  </div>
+
+  <!-- SUJET -->
+  <div class="blk">
+    <div class="bttl">Sujet</div>
+    <textarea class="inp" id="topic" rows="2" placeholder="Ex: 5 astuces pour gagner du temps..."></textarea>
+    <div class="div"></div>
+    <div class="lbl">Slides</div>
+    <div class="scount">
+      <input type="range" min="2" max="12" value="5" id="slc" oninput="updateSlideCount(this.value)">
+      <span id="slcv" style="font-size:11px;color:var(--m);min-width:18px">5</span>
+    </div>
+    <button class="btn btn-red btn-full" onclick="generateAll()">Générer le carrousel</button>
+  </div>
+
+  <!-- SLIDES LIST -->
+  <div class="blk">
+    <div class="bttl">Slides
+      <button class="btn btn-g btn-xs" style="margin-left:auto" onclick="addSlide()">+</button>
+    </div>
+    <div class="sll" id="sll"></div>
+  </div>
+
+</div>
+</div>
+
+<!-- ══ CENTER ══ -->
+<div class="col">
+<div class="canvas">
+
+  <div class="snav">
+    <button class="btn btn-g btn-icon" onclick="prev()">←</button>
+    <div class="sctr" id="sctr">1 / 1</div>
+    <button class="btn btn-g btn-icon" onclick="next()">→</button>
+  </div>
+
+  <div class="ttf" id="ttf">
+    <div class="ttbg" id="ttbg"></div>
+    <div class="ttov"></div>
+    <div class="ttct" id="ttct"></div>
+    <div class="ttnum" id="ttnum">1</div>
+    <div class="ttav" id="ttav" style="display:none">
+      <span class="ttavem" id="ttavem"></span>
+      <span class="ttavnm" id="ttavnm">Avatar</span>
+    </div>
+    <div class="ttload" id="ttload">
+      <div class="spin"></div>
+      <div class="spintxt" id="spintxt">Génération...</div>
+    </div>
+  </div>
+
+  <div class="dots" id="dots"></div>
+
+  <div class="txtarea">
+    <div class="txttl">Texte de cette slide</div>
+    <textarea class="inp" id="sinp" rows="2" placeholder="Tape ou génère le texte..." oninput="onSinp()"></textarea>
+    <div class="txtbtns">
+      <button class="btn btn-g btn-sm" style="flex:1" onclick="genText()">Texte IA</button>
+      <button class="btn btn-g btn-sm" style="flex:1" onclick="genBg()">Fond IA</button>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ══ RIGHT ══ -->
+<div class="col col-r">
+<div class="scroll">
+
+  <!-- POLICE -->
+  <div class="blk">
+    <div class="bttl">Police <span class="tag">TIKTOK</span></div>
+    <div class="fgrid" id="fg">
+      <div class="fopt on" style="font-family:'Bebas Neue';font-size:15px;letter-spacing:2px" data-f="'Bebas Neue'" onclick="setFont(this)">BOLD</div>
+      <div class="fopt" style="font-family:'DM Sans';font-weight:700" data-f="'DM Sans'" onclick="setFont(this)">Modern</div>
+      <div class="fopt" style="font-family:Georgia;font-style:italic;font-size:11px" data-f="Georgia" onclick="setFont(this)"><em>Élégant</em></div>
+      <div class="fopt" style="font-family:'Courier New';font-size:10px" data-f="'Courier New'" onclick="setFont(this)">CODE</div>
+      <div class="fopt" style="font-family:Impact;letter-spacing:1px" data-f="Impact" onclick="setFont(this)">IMPACT</div>
+      <div class="fopt" style="font-family:cursive;font-size:13px" data-f="cursive" onclick="setFont(this)">Script</div>
+      <div class="fopt" style="font-family:'Syne',sans-serif;font-weight:800;font-size:11px" data-f="'Syne'" onclick="setFont(this)">SYNE</div>
+      <div class="fopt" style="font-family:Arial Black;font-size:10px" data-f="'Arial Black'" onclick="setFont(this)">EXTRA</div>
+    </div>
+    <div class="lbl">Taille</div>
+    <div class="szrow">
+      <input type="range" class="szsl" min="14" max="70" value="28" id="szsl" oninput="setSz(this.value)">
+      <span class="szv" id="szv">28px</span>
+    </div>
+  </div>
+
+  <!-- COULEURS -->
+  <div class="blk">
+    <div class="bttl">Couleurs</div>
+    <div class="lbl">Texte</div>
+    <div class="crow" id="tccrow">
+      <div class="cdot on" style="background:#fff" data-c="#fff" onclick="setTc(this)"></div>
+      <div class="cdot" style="background:#000;border:1px solid var(--b)" data-c="#000" onclick="setTc(this)"></div>
+      <div class="cdot" style="background:var(--red)" data-c="#fe2c55" onclick="setTc(this)"></div>
+      <div class="cdot" style="background:var(--cyan)" data-c="#25f4ee" onclick="setTc(this)"></div>
+      <div class="cdot" style="background:#ffdd00" data-c="#ffdd00" onclick="setTc(this)"></div>
+      <div class="cdot" style="background:#ff6b35" data-c="#ff6b35" onclick="setTc(this)"></div>
+      <div class="cdot" style="background:#a855f7" data-c="#a855f7" onclick="setTc(this)"></div>
+      <div class="cdot" style="background:#22c55e" data-c="#22c55e" onclick="setTc(this)"></div>
+    </div>
+    <div class="lbl">Fond texte</div>
+    <div class="crow" id="bccrow">
+      <div class="cdot on" style="background:transparent;border:2px dashed var(--b)" data-b="transparent" onclick="setBc(this)"></div>
+      <div class="cdot" style="background:rgba(0,0,0,.6)" data-b="rgba(0,0,0,.6)" onclick="setBc(this)"></div>
+      <div class="cdot" style="background:rgba(255,255,255,.18)" data-b="rgba(255,255,255,.18)" onclick="setBc(this)"></div>
+      <div class="cdot" style="background:rgba(254,44,85,.55)" data-b="rgba(254,44,85,.55)" onclick="setBc(this)"></div>
+      <div class="cdot" style="background:rgba(37,244,238,.3)" data-b="rgba(37,244,238,.3)" onclick="setBc(this)"></div>
+    </div>
+  </div>
+
+  <!-- MISE EN PAGE -->
+  <div class="blk">
+    <div class="bttl">Mise en page</div>
+    <div class="lbl">Alignement</div>
+    <div class="alrow" id="alrow">
+      <div class="alb" data-a="left" onclick="setAl(this)">←</div>
+      <div class="alb on" data-a="center" onclick="setAl(this)">—</div>
+      <div class="alb" data-a="right" onclick="setAl(this)">→</div>
+    </div>
+    <div class="lbl">Position</div>
+    <div class="pgrid">
+      <button class="btn btn-g btn-sm" onclick="setPos('top')">Haut</button>
+      <button class="btn btn-g btn-sm" onclick="setPos('center')">Centre</button>
+      <button class="btn btn-g btn-sm" onclick="setPos('bottom')">Bas</button>
+    </div>
+  </div>
+
+  <!-- EFFETS -->
+  <div class="blk">
+    <div class="bttl">Effets texte</div>
+    <div class="fxgrid" id="fxgrid">
+      <div class="fxc" data-x="none" onclick="setFx(this)">Normal</div>
+      <div class="fxc on" data-x="shadow" onclick="setFx(this)">Ombre</div>
+      <div class="fxc" data-x="outline" onclick="setFx(this)">Contour</div>
+      <div class="fxc" data-x="glow" onclick="setFx(this)">Glow</div>
+      <div class="fxc" data-x="neon" onclick="setFx(this)">Néon</div>
+      <div class="fxc" data-x="gradient" onclick="setFx(this)">Dégradé</div>
+      <div class="fxc" data-x="3d" onclick="setFx(this)">3D</div>
+      <div class="fxc" data-x="glitch" onclick="setFx(this)">Glitch</div>
+    </div>
+  </div>
+
+  <!-- STYLE PHOTO -->
+  <div class="blk">
+    <div class="bttl">Style photo IA</div>
+    <div class="psgrid" id="psgrid">
+      <div class="psb on" data-ps="lifestyle" onclick="setPs(this)">Lifestyle</div>
+      <div class="psb" data-ps="portrait" onclick="setPs(this)">Portrait</div>
+      <div class="psb" data-ps="urban" onclick="setPs(this)">Urbain</div>
+      <div class="psb" data-ps="nature" onclick="setPs(this)">Nature</div>
+      <div class="psb" data-ps="studio" onclick="setPs(this)">Studio</div>
+      <div class="psb" data-ps="travel" onclick="setPs(this)">Voyage</div>
+      <div class="psb" data-ps="golden" onclick="setPs(this)">Golden Hr</div>
+      <div class="psb" data-ps="night" onclick="setPs(this)">Nuit</div>
+      <div class="psb" data-ps="minimal" onclick="setPs(this)">Minimal</div>
+      <div class="psb" data-ps="luxury" onclick="setPs(this)">Luxe</div>
+    </div>
+    <div class="lbl">Prompt custom</div>
+    <input type="text" class="inp" id="cprompt" placeholder="Ex: Paris at sunset, cinematic...">
+  </div>
+
+  <!-- TIKTOK PUBLISH -->
+  <div class="blk">
+    <div class="bttl">TikTok <span class="tag">BROUILLON</span></div>
+    <div class="ttcon">
+      <div class="ttconh">
+        <div class="ttconlogo"></div>
+        <div>
+          <div class="ttcontit">Content Posting API</div>
+          <div class="ttconsub">Upload en brouillon (inbox)</div>
+        </div>
+      </div>
+      <div class="ttconbody">
+        <div class="ttstatrow">
+          <div class="ttstdot" id="ttstdot"></div>
+          <span class="ttstxt" id="ttstxt">Token requis (panneau gauche)</span>
+        </div>
+        <div class="lbl">Légende du post</div>
+        <textarea class="inp" id="ttcap" rows="2" placeholder="#tips #fyp #viral..."></textarea>
+        <div class="lbl">Visibilité</div>
+        <select class="inp" id="ttpriv">
+          <option value="SELF_ONLY">Privé (brouillon)</option>
+          <option value="FOLLOWER_OF_CREATOR">Abonnés</option>
+          <option value="PUBLIC_TO_EVERYONE">Public</option>
+        </select>
+        <div class="uprog" id="uprog">
+          <div class="utrack"><div class="ufill" id="ufill"></div></div>
+          <div class="usteps" id="usteps"></div>
+        </div>
+        <button class="btn btn-tt btn-full" id="ttpushbtn" onclick="pushToDraft()">Envoyer en brouillon</button>
+      </div>
+    </div>
+    <div class="ttcap">Les tokens TikTok expirent après <strong>24h</strong>. Renouvelle-le sur developers.tiktok.com si nécessaire.</div>
+  </div>
+
+  <div class="sbar">
+    <div class="sdot" id="sdot"></div>
+    <span id="stxt">Prêt</span>
+  </div>
+
+</div>
+</div>
+</div>
+
+<!-- MODAL AVATAR -->
+<div class="mbg" id="mbg">
+  <div class="mbox">
+    <div class="mh">Nouvel Avatar</div>
+    <div class="mrow">
+      <span class="mlbl">Nom</span>
+      <input type="text" class="inp" id="mname" placeholder="Léa, Alex, Sam...">
+    </div>
+
+    <div class="mrow">
+      <span class="mlbl" style="display:flex;align-items:center;gap:6px">
+        Photo de référence
+        <span style="font-size:9px;padding:1px 5px;border-radius:8px;background:rgba(37,244,238,.15);color:var(--cyan);font-weight:700">FLUX PuLID</span>
+      </span>
+      <label class="photo-drop" id="photoDrop" for="photoInput">
+        <input type="file" id="photoInput" accept="image/jpeg,image/png,image/webp" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%" onchange="onPhotoSelect(event)">
+        <div class="photo-drop-txt">Clique ici pour choisir une photo<br><span style="opacity:.6;font-size:10px">JPG, PNG, WEBP — ton visage réinterprété à chaque fond</span></div>
+        <button class="photo-clear" id="photoClear" onclick="clearPhoto(event)" type="button">×</button>
+      </label>
+      <img class="photo-preview" id="photoPreview" alt="">
+    </div>
+
+    <!-- SLIDER SIMILARITÉ -->
+    <div class="mrow" id="faceScaleRow" style="display:none">
+      <span class="mlbl" style="display:flex;align-items:center;justify-content:space-between">
+        Ressemblance au visage
+        <span id="faceScaleVal" style="color:var(--cyan);font-weight:700">75%</span>
+      </span>
+      <input type="range" min="40" max="100" value="75" id="faceScaleSlider"
+        style="width:100%;accent-color:var(--cyan);margin-top:4px"
+        oninput="$('faceScaleVal').textContent=this.value+'%'">
+      <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--m);margin-top:3px">
+        <span>Plus créatif</span>
+        <span>Plus fidèle</span>
+      </div>
+    </div>
+
+    <div class="mrow">
+      <span class="mlbl">Style / Description</span>
+      <textarea class="inp" id="mdesc" rows="2" placeholder="Jeune femme 25 ans, style streetwear, ambiance urbaine, couleurs chaudes..."></textarea>
+    </div>
+    <div class="mrow">
+      <span class="mlbl">Couleur accent</span>
+      <div class="crow" id="mcrow">
+        <div class="cdot" style="background:#fe2c55" data-mc="#fe2c55" onclick="setMc(this)"></div>
+        <div class="cdot on" style="background:#25f4ee" data-mc="#25f4ee" onclick="setMc(this)"></div>
+        <div class="cdot" style="background:#ff6b35" data-mc="#ff6b35" onclick="setMc(this)"></div>
+        <div class="cdot" style="background:#a855f7" data-mc="#a855f7" onclick="setMc(this)"></div>
+        <div class="cdot" style="background:#22c55e" data-mc="#22c55e" onclick="setMc(this)"></div>
+        <div class="cdot" style="background:#ffdd00" data-mc="#ffdd00" onclick="setMc(this)"></div>
+      </div>
+    </div>
+    <div class="mfoot">
+      <button class="btn btn-g" style="flex:1" onclick="closeModal()">Annuler</button>
+      <button class="btn btn-cyan" style="flex:1" onclick="saveAvatar()">Créer</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const LANGS={fr:'français',en:'English',es:'español',pt:'português',de:'Deutsch',it:'italiano',ar:'عربي',zh:'中文',ja:'日本語',ko:'한국어',ru:'русский',tr:'Türkçe'};
+const PS={lifestyle:'lifestyle photography, candid, natural light, authentic',portrait:'professional portrait photography, sharp focus, bokeh background',urban:'urban photography, city background, street style',nature:'nature photography, beautiful scenery, golden hour',studio:'studio photography, clean background, professional lighting',travel:'travel photography, exotic location, wanderlust',golden:'golden hour photography, warm tones, sunset light',night:'night photography, city lights, neon, long exposure',minimal:'minimalist photography, clean, neutral background',luxury:'luxury lifestyle photography, premium, high-end'};
+
+let S={slides:[mk()],cur:0,lang:'fr',font:"'Bebas Neue'",sz:28,tc:'#fff',bc:'transparent',al:'center',fx:'shadow',pos:'center',ps:'lifestyle',avatars:[],selAv:null,mColor:'#25f4ee'};
+
+function mk(){const g=['linear-gradient(135deg,#1a1a2e,#0f3460)','linear-gradient(135deg,#2d1b69,#11998e)','linear-gradient(135deg,#0f0c29,#302b63,#24243e)','linear-gradient(135deg,#c94b4b,#4b134f)','linear-gradient(135deg,#1d2671,#c33764)','linear-gradient(135deg,#141e30,#243b55)'];return{id:Date.now()+Math.random(),text:'',bgUrl:'',grad:g[Math.floor(Math.random()*g.length)]};}
+
+// ── PERSIST ──
+const DB='tcc_v4';
+function save(){try{localStorage.setItem(DB,JSON.stringify({avatars:S.avatars,slides:S.slides,selAv:S.selAv,falKey:$('falKey').value,ttKey:$('ttKey').value,version:4}));localStorage.setItem('tcc_av_bak',JSON.stringify(S.avatars));}catch(e){}}
+function load(){
+  try{
+    const d=JSON.parse(localStorage.getItem(DB)||'{}');
+    if(d.avatars?.length) S.avatars=d.avatars;
+    if(d.slides?.length) S.slides=d.slides;
+    if(d.selAv!==undefined) S.selAv=d.selAv;
+    if(d.falKey) setTimeout(()=>{$('falKey').value=d.falKey;onFalKey();},80);
+    if(d.ttKey) setTimeout(()=>{$('ttKey').value=d.ttKey;onTtKey();},80);
+  }catch(e){}
+  if(!S.avatars.length){try{const b=localStorage.getItem('tcc_av_bak');if(b)S.avatars=JSON.parse(b);}catch(e){}}
+}
+
+function $(id){return document.getElementById(id);}
+function Q(sel){return Array.from(document.querySelectorAll(sel));}
+
+// ── API KEY UI ──
+function toggleVis(id){const i=$(id);i.type=i.type==='password'?'text':'password';}
+function onFalKey(){
+  const v=$('falKey').value.trim();
+  const ok=v.length>8;
+  const empty=!v;
+  $('falDot').className='kdot'+(ok?' ok':'');
+  $('falTxt').textContent=ok?'Clé configurée ✓':'Non configurée';
+  $('falTxt').style.color=ok?'var(--green)':'var(--m)';
+  save();
+}
+function onTtKey(){
+  const v=$('ttKey').value.trim();
+  const ok=v.startsWith('act.')&&v.length>10;
+  const empty=!v;
+  $('ttDot').className='kdot'+(ok?' ok':!empty?' err':'');
+  $('ttTxt').textContent=ok?'Connecté ✓':empty?'Non configuré':'Format invalide (act.xxx...)';
+  $('ttTxt').style.color=ok?'var(--green)':!empty?'var(--red)':'var(--m)';
+  // Sync statut panel droit
+  $('ttstdot').className='ttstdot'+(ok?' ok':!empty?' err':'');
+  $('ttstxt').textContent=ok?'Token valide ✓':empty?'Token requis (panneau gauche)':'Token invalide';
+  save();
+}
+
+// ── LANG ──
+function setLang(el){Q('.lc').forEach(c=>c.classList.remove('on'));el.classList.add('on');S.lang=el.dataset.l;}
+
+// ── STYLE ──
+function setFont(el){Q('#fg .on').forEach(e=>e.classList.remove('on'));el.classList.add('on');S.font=el.dataset.f;render();}
+function setSz(v){S.sz=+v;$('szv').textContent=v+'px';render();}
+function setTc(el){Q('#tccrow .on').forEach(e=>e.classList.remove('on'));el.classList.add('on');S.tc=el.dataset.c;render();}
+function setBc(el){Q('#bccrow .on').forEach(e=>e.classList.remove('on'));el.classList.add('on');S.bc=el.dataset.b;render();}
+function setAl(el){Q('#alrow .on').forEach(e=>e.classList.remove('on'));el.classList.add('on');S.al=el.dataset.a;render();}
+function setFx(el){Q('#fxgrid .on').forEach(e=>e.classList.remove('on'));el.classList.add('on');S.fx=el.dataset.x;render();}
+function setPos(p){S.pos=p;render();}
+function setPs(el){Q('#psgrid .on').forEach(e=>e.classList.remove('on'));el.classList.add('on');S.ps=el.dataset.ps;}
+
+// ── AVATARS ──
+function renderAv(){
+  const g=$('avg');g.innerHTML='';
+  S.avatars.forEach((av,i)=>{
+    const d=document.createElement('div');
+    d.className='avc'+(S.selAv===i?' on':'');
+    d.onclick=()=>selAv(i);
+    const photoIndicator=av.refPhoto?`<div class="av-has-photo" title="Photo active"></div>`:'';
+    d.innerHTML=`<div class="av-init" style="width:32px;height:32px;border-radius:50%;background:${av.color||'#25f4ee'};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#07070d;margin:0 auto 3px">${av.name.slice(0,2).toUpperCase()}</div><div class="avnm">${av.name}</div><div class="avdel" onclick="delAv(event,${i})">×</div>${photoIndicator}`;
+    g.appendChild(d);
+  });
+}
+function selAv(i){S.selAv=S.selAv===i?null:i;renderAv();render();save();toast(S.selAv!==null?`Avatar "${S.avatars[i].name}" sélectionné`:'Avatar désélectionné');}
+function delAv(e,i){e.stopPropagation();if(!confirm(`Supprimer "${S.avatars[i].name}" ?`))return;S.avatars.splice(i,1);if(S.selAv===i)S.selAv=null;else if(S.selAv>i)S.selAv--;save();renderAv();}
+// ── PHOTO UPLOAD ──
+let mPhotoBase64 = null;
+let mPhotoDataUrl = null;
+
+function onPhotoSelect(e){
+  const file = e.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    mPhotoDataUrl = ev.target.result;
+    mPhotoBase64 = ev.target.result.split(',')[1];
+    $('photoPreview').src = ev.target.result;
+    $('photoPreview').classList.add('on');
+    $('photoDrop').classList.add('has-img');
+    $('faceScaleRow').style.display='block';
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearPhoto(e){
+  e.stopPropagation();
+  mPhotoBase64 = null; mPhotoDataUrl = null;
+  $('photoPreview').src=''; $('photoPreview').classList.remove('on');
+  $('photoDrop').classList.remove('has-img');
+  $('photoInput').value='';
+  $('faceScaleRow').style.display='none';
+}
+
+function openModal(){
+  $('mbg').classList.add('on');
+  $('mname').value=''; $('mdesc').value='';
+  S.mEmoji='👩';
+  mPhotoBase64=null; mPhotoDataUrl=null;
+  $('photoPreview').src=''; $('photoPreview').classList.remove('on');
+  $('photoDrop').classList.remove('has-img');
+  $('photoInput').value='';
+  $('faceScaleRow').style.display='none';
+  $('faceScaleSlider').value=75;
+  $('faceScaleVal').textContent='75%';
+}
+function closeModal(){$('mbg').classList.remove('on');}
+function setMc(el){Q('#mcrow .on').forEach(e=>e.classList.remove('on'));el.classList.add('on');S.mColor=el.dataset.mc;}
+function saveAvatar(){
+  const name=$('mname').value.trim();const desc=$('mdesc').value.trim();
+  if(!name){toast('Donne un nom');return;}
+  const faceScale = mPhotoBase64 ? (parseInt($('faceScaleSlider').value)/100) : null;
+  S.avatars.push({name,desc,emoji:'',color:S.mColor,refPhoto:mPhotoBase64||null,refPhotoUrl:mPhotoDataUrl||null,faceScale});
+  save();renderAv();closeModal();
+  toast(mPhotoBase64?`✓ Avatar "${name}" créé avec photo (ressemblance ${Math.round(faceScale*100)}%) !`:`✓ Avatar "${name}" sauvegardé !`);
+}
+
+// ── SLIDES ──
+function addSlide(){S.slides.push(mk());S.cur=S.slides.length-1;refresh();}
+function goTo(i){S.cur=i;render();renderList();renderDots();updateCtr();$('sinp').value=S.slides[i].text||'';}
+function prev(){if(S.cur>0)goTo(S.cur-1);}
+function next(){if(S.cur<S.slides.length-1)goTo(S.cur+1);}
+function updateCtr(){$('sctr').textContent=`${S.cur+1} / ${S.slides.length}`;$('ttnum').textContent=S.cur+1;}
+function updateSlideCount(v){$('slcv').textContent=v;const n=+v;while(S.slides.length<n)S.slides.push(mk());while(S.slides.length>n&&S.slides.length>1)S.slides.pop();if(S.cur>=S.slides.length)S.cur=S.slides.length-1;refresh();}
+function refresh(){renderList();renderDots();render();updateCtr();}
+function renderList(){
+  const el=$('sll');el.innerHTML='';
+  S.slides.forEach((sl,i)=>{
+    const d=document.createElement('div');d.className='slt'+(i===S.cur?' on':'');
+    d.innerHTML=`<div class="sltn">${i+1}</div><div class="sltt">${sl.text||'(vide)'}</div><div class="slta"><button class="sltb" onclick="dupSl(event,${i})">⎘</button><button class="sltb del" onclick="rmSl(event,${i})">×</button></div>`;
+    d.addEventListener('click',e=>{if(!e.target.closest('.sltb'))goTo(i);});
+    el.appendChild(d);
+  });
+}
+function dupSl(e,i){e.stopPropagation();const c=JSON.parse(JSON.stringify(S.slides[i]));c.id=Date.now();S.slides.splice(i+1,0,c);refresh();save();}
+function rmSl(e,i){e.stopPropagation();if(S.slides.length<=1){toast('Min 1 slide');return;}S.slides.splice(i,1);if(S.cur>=S.slides.length)S.cur=S.slides.length-1;refresh();save();}
+function renderDots(){const d=$('dots');d.innerHTML='';S.slides.forEach((_,i)=>{const x=document.createElement('div');x.className='dot'+(i===S.cur?' on':'');x.onclick=()=>goTo(i);d.appendChild(x);});}
+
+// ── RENDER ──
+function render(){
+  const sl=S.slides[S.cur];if(!sl)return;
+  const bg=$('ttbg');
+  if(sl.bgUrl){bg.style.backgroundImage=`url(${sl.bgUrl})`;bg.style.background='';}
+  else{bg.style.backgroundImage='';bg.style.background=sl.grad;}
+  const ct=$('ttct');ct.innerHTML='';
+  ct.style.justifyContent=S.pos==='top'?'flex-start':S.pos==='bottom'?'flex-end':'center';
+  ct.style.paddingTop=S.pos==='top'?'72px':'32px';
+  ct.style.paddingBottom=S.pos==='bottom'?'72px':'32px';
+  if(sl.text){
+    const b=document.createElement('div');b.style.width='100%';b.style.textAlign='center';
+    const t=document.createElement('div');t.className='tttext';
+    t.style.fontFamily=S.font;t.style.fontSize=S.sz+'px';t.style.color=S.tc;
+    t.style.textAlign=S.al;
+    t.style.backgroundColor=S.bc==='transparent'?'transparent':S.bc;
+    t.style.padding=S.bc!=='transparent'?'8px 15px':'4px 7px';
+    t.style.borderRadius=S.bc!=='transparent'?'8px':'4px';
+    applyFx(t);t.textContent=sl.text;b.appendChild(t);ct.appendChild(b);
+  }
+  const av=$('ttav');
+  if(S.selAv!==null&&S.avatars[S.selAv]){const a=S.avatars[S.selAv];av.style.display='flex';$('ttavem').textContent=a.emoji;$('ttavnm').textContent=a.name;}
+  else av.style.display='none';
+}
+function applyFx(el){
+  el.style.textShadow='';el.style.webkitTextStroke='';el.style.backgroundImage='';el.style.webkitBackgroundClip='';el.style.webkitTextFillColor='';
+  switch(S.fx){
+    case'shadow':el.style.textShadow='3px 3px 8px rgba(0,0,0,.85)';break;
+    case'outline':el.style.webkitTextStroke='1.5px rgba(0,0,0,.95)';break;
+    case'glow':el.style.textShadow=`0 0 20px ${S.tc},0 0 40px ${S.tc}60`;break;
+    case'neon':el.style.textShadow='0 0 7px #fff,0 0 10px #fff,0 0 21px #fe2c55,0 0 42px #fe2c55';break;
+    case'gradient':el.style.backgroundImage='linear-gradient(90deg,#fe2c55,#25f4ee)';el.style.webkitBackgroundClip='text';el.style.webkitTextFillColor='transparent';break;
+    case'3d':el.style.textShadow='1px 1px 0 rgba(0,0,0,.6),2px 2px 0 rgba(0,0,0,.5),3px 3px 0 rgba(0,0,0,.4),4px 4px 8px rgba(0,0,0,.7)';break;
+    case'glitch':el.style.textShadow='2px 0 #fe2c55,-2px 0 #25f4ee';break;
+  }
+}
+function onSinp(){S.slides[S.cur].text=$('sinp').value;render();renderList();save();}
+
+// ── STATUS ──
+function setSt(msg,type){$('stxt').textContent=msg;$('sdot').className='sdot'+(type==='ok'?' ok':type==='err'?' err':'');}
+function showLoad(msg){$('ttload').classList.add('on');$('spintxt').textContent=msg||'...';}
+function hideLoad(){$('ttload').classList.remove('on');}
+
+// ── FAL.AI ──
+async function falGen(prompt, slideIdx, totalSlides){
+  const key=$('falKey').value.trim();
+  if(!key){toast('Configure ta clé fal.ai (panneau gauche)');return null;}
+
+  const av=S.selAv!==null?S.avatars[S.selAv]:null;
+  const style=PS[S.ps]||PS.lifestyle;
+  const custom=$('cprompt').value.trim();
+
+  const SCENE_VARS=[
+    'vibrant city street at golden hour, dynamic urban background',
+    'cozy cafe interior, warm bokeh lights, lifestyle',
+    'rooftop terrace at sunset, city skyline behind',
+    'beach shoreline, soft waves, warm natural light',
+    'modern minimalist studio, clean background, professional',
+    'forest path in autumn, golden leaves, dreamy light',
+    'luxury hotel lobby, elegant ambiance, soft lighting',
+    'neon-lit night street, colorful reflections, wet pavement',
+    'garden in spring bloom, pastel flowers, soft focus',
+    'dramatic desert landscape, cinematic wide shot',
+    'mountain peak at sunrise, epic scenery',
+    'poolside luxury, turquoise water, summer vibes',
+  ];
+  const sceneVar = SCENE_VARS[(slideIdx||0) % SCENE_VARS.length];
+
+  let fp = `${prompt}, ${style}, ${sceneVar}, photorealistic, cinematic, 9:16 vertical portrait, high resolution, TikTok aesthetic`;
+  if(av?.desc) fp = `${av.desc}, ${fp}`;
+  if(custom) fp = custom+', '+fp;
+
+  console.log('[falGen] key prefix:', key.slice(0,8));
+  console.log('[falGen] hasFace:', !!(av?.refPhoto));
+  console.log('[falGen] prompt:', fp.slice(0,100));
+
+  try{
+    let r, d, url=null;
+
+    if(av?.refPhoto){
+      r=await fetch('https://fal.run/fal-ai/flux-pulid',{
+        method:'POST',
+        headers:{'Authorization':`Key ${key}`,'Content-Type':'application/json'},
+        body:JSON.stringify({
+          face_image: av.refPhoto,
+          prompt: fp,
+          negative_prompt: 'duplicate, low quality, blurry',
+          num_inference_steps: 28,
+          guidance_scale: 4.5,
+          width: 576,
+          height: 1024,
+          num_images: 1,
+          id_scale: av.faceScale ?? 0.75,
+        })
+      });
+    } else {
+      r=await fetch('https://fal.run/fal-ai/flux/schnell',{
+        method:'POST',
+        headers:{'Authorization':`Key ${key}`,'Content-Type':'application/json'},
+        body:JSON.stringify({prompt:fp,image_size:{width:576,height:1024},num_inference_steps:4,num_images:1})
+      });
+    }
+
+    console.log('[falGen] HTTP status:', r.status);
+    d = await r.json();
+    console.log('[falGen] response:', JSON.stringify(d).slice(0,300));
+
+    if(!r.ok) throw new Error(d?.detail||d?.message||d?.error||`HTTP ${r.status}`);
+    url = d.images?.[0]?.url || null;
+    if(!url) throw new Error('Pas d image dans la reponse fal.ai');
+    return url;
+
+  }catch(err){
+    console.error('[falGen] ERROR:', err.message);
+    setSt(err.message,'err');
+    toast('Erreur fal.ai: '+err.message);
+    return null;
+  }
+}
+
+// ── CLAUDE TEXT ──
+async function claudeText(topic,idx,total){
+  const ln=LANGS[S.lang]||S.lang;
+  const av=S.selAv!==null?S.avatars[S.selAv]:null;
+  const ctx=av?`Persona: ${av.name}${av.desc?' — '+av.desc:''}`:'' ;
+  const p=`Génère le texte de la slide ${idx+1}/${total} d'un carrousel TikTok.\nSujet: "${topic}"\nLangue: ${ln}\n${ctx}\nRègles: max 12 mots, percutant, viral. Slide 1=hook fort. Milieu=valeur clé. Dernière=CTA (follow/like/partage).\nRéponds UNIQUEMENT avec le texte, rien d'autre.`;
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:80,messages:[{role:'user',content:p}]})});
+    const d=await r.json();return d.content?.[0]?.text?.trim()||'';
+  }catch(e){return'';}
+}
+
+// ── GENERATE ──
+async function genText(){
+  const topic=$('topic').value.trim();if(!topic){toast('Entre un sujet');return;}
+  showLoad('Texte IA...');setSt('Génération texte...','');
+  const txt=await claudeText(topic,S.cur,S.slides.length);
+  hideLoad();
+  if(txt){S.slides[S.cur].text=txt;$('sinp').value=txt;render();renderList();save();setSt('Texte généré ✓','ok');}
+  else setSt('Erreur texte','err');
+}
+
+async function genBg(){
+  const topic=$('topic').value.trim()||'lifestyle';
+  showLoad('Photo IA...');setSt('fal.ai...','');
+  const url=await falGen(topic, S.cur, S.slides.length);
+  hideLoad();
+  if(url){S.slides[S.cur].bgUrl=url;save();render();setSt('Photo générée ✓','ok');toast('🎨 Photo générée !');}
+}
+
+async function generateAll(){
+  const topic=$('topic').value.trim();if(!topic){toast('Entre un sujet');return;}
+  const n=S.slides.length;toast(`✦ Génération de ${n} slides...`);setSt('Génération...','');
+  const hasKey=$('falKey').value.trim().length>8;
+  for(let i=0;i<n;i++){
+    goTo(i);
+    showLoad(`Slide ${i+1}/${n} — Texte...`);
+    const txt=await claudeText(topic,i,n);
+    if(txt){S.slides[i].text=txt;render();renderList();}
+    if(hasKey){
+      const av=S.selAv!==null?S.avatars[S.selAv]:null;
+      const mode=av?.refPhoto?'PuLID 🎭':'Photo';
+      $('spintxt').textContent=`Slide ${i+1}/${n} — ${mode}...`;
+      const url=await falGen(topic, i, n);
+      if(url){S.slides[i].bgUrl=url;render();}
+    }
+  }
+  hideLoad();save();render();renderList();
+  setSt(`${n} slides générées ✓`,'ok');toast('✅ Carrousel prêt !');
+}
+
+// ── TIKTOK DRAFT ──
+async function pushToDraft(){
+  const token=$('ttKey').value.trim();
+  if(!token||!token.startsWith('act.')){toast('Configure ton token TikTok (panneau gauche)');return;}
+  const imgs=S.slides.filter(sl=>sl.bgUrl).map(sl=>sl.bgUrl);
+  if(!imgs.length){toast('Génère dabord les fonds IA');return;}
+  if(imgs.length>10)imgs.splice(10);
+  const caption=$('ttcap').value.trim()||$('topic').value.trim()||'Mon carrousel TikTok';
+  const privacy=$('ttpriv').value;
+  const STEPS=['Initialisation TikTok...','Images envoyées...','Vérification statut...','Brouillon créé ✓'];
+  $('uprog').classList.add('on');
+  buildSteps(STEPS);setStep(STEPS,0);
+  $('ttpushbtn').disabled=true;setSt('Upload TikTok...','');
+  try{
+    setStep(STEPS,0);
+    const ir=await fetch('https://open.tiktokapis.com/v2/post/publish/content/init/',{method:'POST',headers:{'Authorization':`Bearer ${token}`,'Content-Type':'application/json; charset=UTF-8'},body:JSON.stringify({post_info:{description:caption,disable_duet:false,disable_comment:false,disable_stitch:false,privacy_level:privacy},source_info:{source:'PULL_FROM_URL',photo_images:imgs,photo_cover_index:0},post_mode:'INBOX',media_type:'PHOTO'})});
+    const id=await ir.json();
+    if(!ir.ok||id?.error?.code!=='ok')throw new Error(id?.error?.message||`HTTP ${ir.status}`);
+    const pid=id?.data?.publish_id;if(!pid)throw new Error('Pas de publish_id');
+    setStep(STEPS,1);
+    let ok=false;
+    for(let a=0;a<12;a++){
+      await sleep(5000);setStep(STEPS,2);
+      const sr=await fetch('https://open.tiktokapis.com/v2/post/publish/status/fetch/',{method:'POST',headers:{'Authorization':`Bearer ${token}`,'Content-Type':'application/json; charset=UTF-8'},body:JSON.stringify({publish_id:pid})});
+      const sd=await sr.json();const ps=sd?.data?.status;
+      if(ps==='PUBLISH_COMPLETE'||ps==='PUBLISH_SUCCESS'){ok=true;break;}
+      if(ps==='FAILED'||ps==='ERROR')throw new Error('Upload échoué: '+(sd?.data?.fail_reason||'inconnue'));
+    }
+    setStep(STEPS,3);setSt('Brouillon TikTok créé ✓','ok');
+    toast('Brouillon envoyé ! Vérifie ton inbox TikTok.');
+    $('ttpushbtn').textContent='Brouillon créé !';
+    setTimeout(()=>{$('ttpushbtn').textContent='Envoyer en brouillon';$('ttpushbtn').disabled=false;},4000);
+  }catch(err){
+    setSt('Erreur TikTok: '+err.message,'err');toast('❌ TikTok: '+err.message);
+    $('ttpushbtn').disabled=false;$('ttpushbtn').textContent='Envoyer en brouillon';
+    if(err.message.includes('401'))setTimeout(()=>toast('💡 Token expiré ? Durée de vie : 24h — régénère-en un.'),3500);
+  }
+}
+
+function buildSteps(steps){const c=$('usteps');c.innerHTML='';steps.forEach(s=>{const e=document.createElement('div');e.className='ustep';e.innerHTML=`<div class="usdot"></div>${s}`;c.appendChild(e);});}
+function setStep(steps,i){Q('.ustep').forEach((e,j)=>{e.className='ustep'+(j<i?' done':j===i?' act':'');});$('ufill').style.width=Math.round(i/(steps.length-1)*100)+'%';}
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+
+// ── TOAST ──
+function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),4000);}
+
+// ── INIT ──
+function init(){load();renderEmjs();renderAv();renderList();renderDots();render();updateCtr();setInterval(save,30000);}
+init();
+</script>
+</body>
+</html>
